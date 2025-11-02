@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verizon Sales Finder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎯 Verizon Sales Finder</h1>
+            <p class="subtitle">Real-time Conversation Analysis</p>
+        </header>
+
+        <!-- Consent Screen -->
+        <div id="consentScreen" class="screen active">
+            <div class="card">
+                <h2>Customer Consent Required</h2>
+                <p>Before starting, please inform your customer:</p>
+                <ul class="consent-list">
+                    <li>This conversation will be recorded for quality and training purposes</li>
+                    <li>Audio will be transcribed in real-time</li>
+                    <li>Data is stored locally on this device</li>
+                    <li>They can request to stop at any time</li>
+                </ul>
+                <div class="consent-actions">
+                    <button id="customerConsents" class="btn btn-primary">Customer Consents - Start</button>
+                    <button id="customerDeclines" class="btn btn-secondary">Customer Declines</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="appScreen" class="screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <span id="statusDot" class="dot"></span>
+                    <span id="statusText">Ready</span>
+                </div>
+                <div class="session-time" id="sessionTime">00:00</div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="controls">
+                <button id="startBtn" class="btn btn-success">▶ Start Listening</button>
+                <button id="pauseBtn" class="btn btn-warning" style="display:none;">⏸ Pause</button>
+                <button id="stopBtn" class="btn btn-danger" style="display:none;">⏹ Stop Session</button>
+            </div>
+
+            <!-- Opportunities Panel -->
+            <div class="opportunities-panel" id="opportunitiesPanel">
+                <h3>🎯 Detected Opportunities</h3>
+                <div id="opportunitiesList" class="opportunities-list">
+                    <p class="empty-state">Start conversation to detect opportunities...</p>
+                </div>
+            </div>
+
+            <!-- Live Transcript -->
+            <div class="transcript-panel">
+                <h3>📝 Live Transcript</h3>
+                <div id="transcript" class="transcript">
+                    <p class="empty-state">Transcript will appear here...</p>
+                </div>
+            </div>
+
+            <!-- Customer Info (Quick Notes) -->
+            <div class="notes-panel">
+                <h3>📋 Quick Notes</h3>
+                <textarea id="quickNotes" placeholder="Jot down customer name, callback number, or other details..."></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button id="saveBtn" class="btn btn-primary">💾 Save Session</button>
+                <button id="exportBtn" class="btn btn-secondary">📤 Export</button>
+                <button id="newSessionBtn" class="btn btn-secondary">🔄 New Session</button>
+            </div>
+        </div>
+
+        <!-- History Screen -->
+        <div id="historyScreen" class="screen">
+            <div class="history-header">
+                <h2>📚 Session History</h2>
+                <button id="backToApp" class="btn btn-secondary">← Back</button>
+            </div>
+            <div id="historyList" class="history-list">
+                <p class="empty-state">No saved sessions yet.</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <button id="navHome" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button id="navHistory" class="nav-item">
+                <span class="nav-icon">📚</span>
+                <span class="nav-label">History</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
