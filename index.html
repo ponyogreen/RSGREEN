@@ -91,7 +91,8 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <button id="saveBtn" class="btn btn-primary">💾 Save Session</button>
-                <button id="exportBtn" class="btn btn-secondary">📤 Export</button>
+                <button id="exportBtn" class="btn btn-secondary">📤 Export TXT</button>
+                <button id="exportRQBtn" class="btn btn-success">🏪 Export to RQ</button>
                 <button id="newSessionBtn" class="btn btn-secondary">🔄 New Session</button>
             </div>
         </div>
@@ -141,6 +142,122 @@
             </div>
         </div>
 
+        <!-- RQ Export Modal -->
+        <div id="rqExportModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🏪 Export to RQ</h3>
+                    <button id="closeRQModal" class="btn-close">×</button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-description">Choose export format for RQ (iQmetrix) integration:</p>
+
+                    <div class="rq-export-options">
+                        <button id="exportRQJSON" class="btn btn-primary btn-block">
+                            📄 Export as JSON
+                            <span class="btn-subtitle">Recommended for RQ API import</span>
+                        </button>
+
+                        <button id="exportRQCSV" class="btn btn-secondary btn-block">
+                            📊 Export as CSV
+                            <span class="btn-subtitle">For manual import or spreadsheet</span>
+                        </button>
+
+                        <button id="exportRQXML" class="btn btn-secondary btn-block">
+                            📋 Export as XML
+                            <span class="btn-subtitle">For system integration</span>
+                        </button>
+
+                        <div class="rq-divider">OR</div>
+
+                        <button id="sendToRQAPI" class="btn btn-success btn-block" disabled>
+                            🚀 Send Directly to RQ
+                            <span class="btn-subtitle">Requires API configuration</span>
+                        </button>
+
+                        <button id="goToRQSettings" class="btn-link-center">
+                            ⚙️ Configure RQ Integration
+                        </button>
+                    </div>
+
+                    <div id="rqValidation" class="rq-validation" style="display:none;">
+                        <!-- Validation messages -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RQ Settings Screen -->
+        <div id="rqSettingsScreen" class="screen">
+            <div class="settings-header">
+                <h2>⚙️ RQ Integration Settings</h2>
+                <button id="backFromSettings" class="btn btn-secondary">← Back</button>
+            </div>
+
+            <div class="settings-content">
+                <div class="card">
+                    <h3>API Configuration</h3>
+                    <p class="help-text">Configure your RQ API credentials for direct integration</p>
+
+                    <div class="form-group">
+                        <label>API Endpoint URL</label>
+                        <input type="text" id="rqApiEndpoint" placeholder="https://your-company.iqmetrix.net/v1" class="form-input">
+                        <span class="help-text">Your RQ API endpoint URL</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="rqApiKey" placeholder="Enter your API key" class="form-input">
+                        <span class="help-text">Your RQ API authentication key</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company ID</label>
+                        <input type="text" id="rqCompanyId" placeholder="12345" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Store ID</label>
+                        <input type="text" id="rqStoreId" placeholder="Store ID" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Employee ID</label>
+                        <input type="text" id="rqEmployeeId" placeholder="Your Employee ID" class="form-input">
+                    </div>
+
+                    <button id="saveRQSettings" class="btn btn-primary btn-block">💾 Save Settings</button>
+                    <button id="testRQConnection" class="btn btn-secondary btn-block">🔌 Test Connection</button>
+                </div>
+
+                <div class="card">
+                    <h3>Export Information</h3>
+                    <p>The Sales Finder app will export the following to RQ:</p>
+                    <ul class="feature-list">
+                        <li>✓ Order details with SKU mapping</li>
+                        <li>✓ Customer information from notes</li>
+                        <li>✓ Product line items with pricing</li>
+                        <li>✓ Commission calculations</li>
+                        <li>✓ Sales opportunities detected</li>
+                        <li>✓ Session metadata and duration</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Help & Documentation</h3>
+                    <p><strong>How to get your RQ API credentials:</strong></p>
+                    <ol class="help-list">
+                        <li>Log in to your RQ admin portal</li>
+                        <li>Navigate to Settings → API Access</li>
+                        <li>Generate a new API key or use existing</li>
+                        <li>Copy your Company ID and Store ID</li>
+                        <li>Enter credentials above and save</li>
+                    </ol>
+                    <p class="help-text">Note: If you don't have API access, you can still export data manually as JSON/CSV/XML.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Navigation -->
         <nav class="bottom-nav">
             <button id="navHome" class="nav-item active">
@@ -155,10 +272,15 @@
                 <span class="nav-icon">📚</span>
                 <span class="nav-label">History</span>
             </button>
+            <button id="navSettings" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">RQ Settings</span>
+            </button>
         </nav>
     </div>
 
     <script src="product-catalog.js"></script>
+    <script src="rq-integration.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -1030,3 +1030,298 @@ header h1 {
         font-size: 12px;
     }
 }
+
+/* RQ Integration Styles */
+
+/* RQ Export Modal */
+.modal-description {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.rq-export-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 24px;
+}
+
+.btn-subtitle {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.rq-divider {
+    text-align: center;
+    position: relative;
+    margin: 24px 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.rq-divider::before,
+.rq-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.rq-divider::before {
+    left: 0;
+}
+
+.rq-divider::after {
+    right: 0;
+}
+
+.btn-link-center {
+    background: none;
+    border: none;
+    color: var(--info-blue);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    padding: 12px;
+    text-decoration: underline;
+}
+
+.btn-link-center:hover {
+    opacity: 0.8;
+}
+
+.rq-validation {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 8px;
+    background: var(--verizon-gray);
+}
+
+.rq-validation.error {
+    background: #FFE6E6;
+    border-left: 4px solid var(--verizon-red);
+}
+
+.rq-validation.warning {
+    background: #FFF8E6;
+    border-left: 4px solid var(--warning-orange);
+}
+
+.rq-validation.success {
+    background: #E6F8E6;
+    border-left: 4px solid var(--success-green);
+}
+
+.rq-validation-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.rq-validation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rq-validation-list li {
+    padding: 4px 0;
+    padding-left: 20px;
+    position: relative;
+    font-size: 14px;
+}
+
+.rq-validation-list li:before {
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+.rq-validation.error li:before {
+    content: "✗";
+    color: var(--verizon-red);
+}
+
+.rq-validation.warning li:before {
+    content: "⚠";
+    color: var(--warning-orange);
+}
+
+/* RQ Settings Screen */
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.settings-header h2 {
+    font-size: 22px;
+    color: var(--text-primary);
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--verizon-red);
+}
+
+.form-input[type="password"] {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.help-text {
+    display: block;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.help-list {
+    padding-left: 24px;
+    margin: 16px 0;
+}
+
+.help-list li {
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+/* Action button layout for RQ */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.action-buttons .btn:first-child {
+    grid-column: 1 / -1;
+}
+
+.action-buttons #exportRQBtn {
+    grid-column: 1 / -1;
+}
+
+/* Update Bottom Nav for 4 items */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--verizon-white);
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 8px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-item.active {
+    color: var(--verizon-red);
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+
+.nav-label {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+/* Responsive Updates for RQ */
+@media (min-width: 768px) {
+    .action-buttons {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+
+    .action-buttons .btn:first-child {
+        grid-column: auto;
+    }
+
+    .action-buttons #exportRQBtn {
+        grid-column: auto;
+    }
+
+    .nav-icon {
+        font-size: 22px;
+    }
+
+    .nav-label {
+        font-size: 11px;
+    }
+
+    .settings-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+}

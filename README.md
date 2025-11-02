@@ -45,6 +45,15 @@ The app automatically identifies sales opportunities including:
 - **Commission data** - Know your earnings for each product
 - **Easy navigation** - Tabbed interface for quick reference
 
+### 🏪 RQ POS Integration
+- **Direct export to RQ** - Export sales data to iQmetrix RQ retail management system
+- **Multiple export formats** - JSON, CSV, or XML for flexibility
+- **API integration** - Send orders directly to RQ with one click (requires configuration)
+- **SKU mapping** - Automatic product SKU mapping for RQ
+- **Customer data extraction** - Auto-extracts customer info from notes
+- **Validation** - Checks data before export with warnings and errors
+- **Settings management** - Configure and test your RQ API connection
+
 ### 📋 Session Management
 - Save conversation sessions with notes and commission data
 - View conversation history with commission totals
@@ -108,11 +117,52 @@ The app automatically identifies sales opportunities including:
    - Switch between Plans, Devices, Home Internet, and Accessories
    - Quick reference for pricing and commission
 
-10. **End Session**
+10. **Export to RQ**
+    - Click "🏪 Export to RQ" button
+    - Choose export format (JSON, CSV, or XML)
+    - Or send directly to RQ API if configured
+    - File downloads automatically
+
+11. **End Session**
     - Click "⏹ Stop Session" when done
     - Review total commission earned
     - Choose to save the session
-    - Export as text file if needed
+    - Export as text file or to RQ
+
+### RQ Integration Setup
+
+**First Time Setup:**
+1. Click the "⚙️ RQ Settings" tab at the bottom
+2. Enter your RQ API credentials:
+   - API Endpoint URL (e.g., https://your-company.iqmetrix.net/v1)
+   - API Key (from RQ admin portal)
+   - Company ID
+   - Store ID
+   - Employee ID
+3. Click "💾 Save Settings"
+4. Click "🔌 Test Connection" to verify
+
+**Getting RQ API Credentials:**
+1. Log in to your RQ admin portal
+2. Navigate to Settings → API Access
+3. Generate a new API key or use existing
+4. Copy your Company ID and Store ID from account settings
+5. Use your employee ID from your profile
+
+**Export Options:**
+- **JSON**: Best for RQ API import, structured data format
+- **CSV**: For spreadsheet programs or manual import
+- **XML**: For system-to-system integration
+- **Direct API**: Sends order immediately to RQ (requires setup)
+
+**What Gets Exported:**
+- Order header with session ID and timestamp
+- Customer information (extracted from quick notes)
+- Line items with SKU mapping
+- Product details, pricing, and quantities
+- Commission data
+- Sales opportunities detected
+- Session duration and metadata
 
 ### Browser Compatibility
 
@@ -142,6 +192,7 @@ RSGREEN/
 ├── styles.css           # Verizon-branded styling and animations
 ├── app.js               # Core application logic with recommendations
 ├── product-catalog.js   # Product data and commission calculator
+├── rq-integration.js    # RQ POS system integration module
 └── README.md            # This file
 ```
 
@@ -234,9 +285,26 @@ The app uses advanced keyword matching to identify 14 distinct opportunity types
 - Click Resume if paused manually
 - Restart browser if issues persist
 
-## What's New in Version 2.0
+### RQ Export issues
+- **No items error**: Add products to sale before exporting
+- **Missing customer info**: Add customer name/phone in Quick Notes
+- **API connection fails**: Verify API credentials in RQ Settings
+- **Wrong SKU mapping**: Contact admin to update SKU mappings
+- **Export format**: Use JSON for RQ API, CSV for manual import
 
-**Recently Added:**
+## What's New in Version 2.1
+
+**Latest Update - RQ Integration:**
+- ✅ Full RQ (iQmetrix) POS integration
+- ✅ Export to JSON, CSV, or XML formats
+- ✅ Direct API integration with RQ
+- ✅ Automatic SKU mapping for all products
+- ✅ Customer data extraction from notes
+- ✅ Validation before export (errors & warnings)
+- ✅ RQ Settings configuration screen
+- ✅ Connection testing tool
+
+**Version 2.0 Features:**
 - ✅ Product catalog integration with full Verizon lineup
 - ✅ Real-time commission tracking and calculator
 - ✅ Smart product recommendations based on opportunities
@@ -270,4 +338,4 @@ Internal tool for Verizon sales associates.
 
 ---
 
-**Built for Verizon Sales Associates** | Version 2.0 | Enhanced Edition
+**Built for Verizon Sales Associates** | Version 2.1 | RQ Integration Edition

@@ -27,6 +27,9 @@ class SalesFinder {
             commission: 0
         };
 
+        // RQ Integration
+        this.rqIntegration = null;
+
         this.init();
     }
 
@@ -35,7 +38,15 @@ class SalesFinder {
         this.setupEventListeners();
         this.loadHistory();
         this.loadProductCatalog();
+        this.initRQIntegration();
         this.updateCommissionDisplay();
+    }
+
+    initRQIntegration() {
+        if (typeof RQIntegration !== 'undefined') {
+            this.rqIntegration = new RQIntegration();
+            console.log('RQ Integration initialized');
+        }
     }
 
     setupSpeechRecognition() {
@@ -108,11 +119,32 @@ class SalesFinder {
         // Action Buttons
         document.getElementById('saveBtn').addEventListener('click', () => this.saveSession());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportSession());
+        document.getElementById('exportRQBtn').addEventListener('click', () => this.showRQExportModal());
         document.getElementById('newSessionBtn').addEventListener('click', () => this.newSession());
 
         // Commission
         document.getElementById('viewBreakdown').addEventListener('click', () => this.showCommissionBreakdown());
         document.getElementById('closeModal').addEventListener('click', () => this.hideCommissionBreakdown());
+
+        // RQ Export Modal
+        document.getElementById('closeRQModal').addEventListener('click', () => this.hideRQExportModal());
+        document.getElementById('exportRQJSON').addEventListener('click', () => this.exportToRQ('json'));
+        document.getElementById('exportRQCSV').addEventListener('click', () => this.exportToRQ('csv'));
+        document.getElementById('exportRQXML').addEventListener('click', () => this.exportToRQ('xml'));
+        document.getElementById('sendToRQAPI').addEventListener('click', () => this.sendToRQAPI());
+        document.getElementById('goToRQSettings').addEventListener('click', () => {
+            this.hideRQExportModal();
+            this.showScreen('rqSettingsScreen');
+            this.setActiveNav('navSettings');
+        });
+
+        // RQ Settings
+        document.getElementById('saveRQSettings').addEventListener('click', () => this.saveRQSettings());
+        document.getElementById('testRQConnection').addEventListener('click', () => this.testRQConnection());
+        document.getElementById('backFromSettings').addEventListener('click', () => {
+            this.showScreen('appScreen');
+            this.setActiveNav('navHome');
+        });
 
         // Navigation
         document.getElementById('navHome').addEventListener('click', () => {
@@ -130,6 +162,12 @@ class SalesFinder {
             this.showScreen('historyScreen');
             this.setActiveNav('navHistory');
             this.displayHistory();
+        });
+
+        document.getElementById('navSettings').addEventListener('click', () => {
+            this.showScreen('rqSettingsScreen');
+            this.setActiveNav('navSettings');
+            this.loadRQSettings();
         });
 
         document.getElementById('backToApp').addEventListener('click', () => {
@@ -155,6 +193,12 @@ class SalesFinder {
         document.getElementById('commissionModal').addEventListener('click', (e) => {
             if (e.target.id === 'commissionModal') {
                 this.hideCommissionBreakdown();
+            }
+        });
+
+        document.getElementById('rqExportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'rqExportModal') {
+                this.hideRQExportModal();
             }
         });
     }
@@ -966,6 +1010,179 @@ class SalesFinder {
             sessions.splice(index, 1);
             localStorage.setItem('verizonSalesSessions', JSON.stringify(sessions));
             this.displayHistory();
+        }
+    }
+
+    // RQ Integration Methods
+
+    showRQExportModal() {
+        if (!this.rqIntegration) {
+            alert('RQ Integration not available');
+            return;
+        }
+
+        // Validate session data
+        const validation = this.rqIntegration.validateForRQ(this.currentSession);
+
+        const validationDiv = document.getElementById('rqValidation');
+        if (validation.errors.length > 0 || validation.warnings.length > 0) {
+            let html = '';
+
+            if (validation.errors.length > 0) {
+                html += '<div class="rq-validation error">';
+                html += '<div class="rq-validation-title">⚠️ Errors:</div>';
+                html += '<ul class="rq-validation-list">';
+                validation.errors.forEach(err => html += `<li>${err}</li>`);
+                html += '</ul></div>';
+            }
+
+            if (validation.warnings.length > 0) {
+                html += '<div class="rq-validation warning">';
+                html += '<div class="rq-validation-title">⚠ Warnings:</div>';
+                html += '<ul class="rq-validation-list">';
+                validation.warnings.forEach(warn => html += `<li>${warn}</li>`);
+                html += '</ul></div>';
+            }
+
+            validationDiv.innerHTML = html;
+            validationDiv.style.display = 'block';
+        } else {
+            validationDiv.style.display = 'none';
+        }
+
+        // Enable/disable API button based on configuration
+        const apiBtn = document.getElementById('sendToRQAPI');
+        if (this.rqIntegration.isConfigured()) {
+            apiBtn.disabled = false;
+            apiBtn.querySelector('.btn-subtitle').textContent = 'Send order directly to RQ';
+        } else {
+            apiBtn.disabled = true;
+            apiBtn.querySelector('.btn-subtitle').textContent = 'Requires API configuration';
+        }
+
+        document.getElementById('rqExportModal').style.display = 'flex';
+    }
+
+    hideRQExportModal() {
+        document.getElementById('rqExportModal').style.display = 'none';
+    }
+
+    exportToRQ(format) {
+        if (!this.rqIntegration) {
+            alert('RQ Integration not available');
+            return;
+        }
+
+        try {
+            this.rqIntegration.exportToRQ(this.currentSession, format);
+            alert(`Session exported as ${format.toUpperCase()} successfully!\nCheck your downloads folder.`);
+            this.hideRQExportModal();
+        } catch (error) {
+            alert(`Export failed: ${error.message}`);
+        }
+    }
+
+    async sendToRQAPI() {
+        if (!this.rqIntegration) {
+            alert('RQ Integration not available');
+            return;
+        }
+
+        if (!this.rqIntegration.isConfigured()) {
+            alert('RQ API not configured. Please configure your API settings first.');
+            return;
+        }
+
+        const btn = document.getElementById('sendToRQAPI');
+        btn.disabled = true;
+        btn.textContent = '⏳ Sending to RQ...';
+
+        try {
+            const result = await this.rqIntegration.sendToRQAPI(this.currentSession);
+
+            if (result.success) {
+                alert(`✅ Success!\nOrder sent to RQ.\nOrder ID: ${result.orderId}`);
+                this.hideRQExportModal();
+            } else {
+                alert(`❌ Failed to send to RQ:\n${result.message}`);
+            }
+        } catch (error) {
+            alert(`❌ Error: ${error.message}`);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `
+                🚀 Send Directly to RQ
+                <span class="btn-subtitle">Send order directly to RQ</span>
+            `;
+        }
+    }
+
+    loadRQSettings() {
+        if (!this.rqIntegration) {
+            return;
+        }
+
+        // Load saved settings into form
+        document.getElementById('rqApiEndpoint').value = this.rqIntegration.apiEndpoint || '';
+        document.getElementById('rqApiKey').value = this.rqIntegration.apiKey || '';
+        document.getElementById('rqCompanyId').value = this.rqIntegration.companyId || '';
+        document.getElementById('rqStoreId').value = this.rqIntegration.storeId || '';
+        document.getElementById('rqEmployeeId').value = this.rqIntegration.employeeId || '';
+    }
+
+    saveRQSettings() {
+        if (!this.rqIntegration) {
+            alert('RQ Integration not available');
+            return;
+        }
+
+        const settings = {
+            apiEndpoint: document.getElementById('rqApiEndpoint').value,
+            apiKey: document.getElementById('rqApiKey').value,
+            companyId: document.getElementById('rqCompanyId').value,
+            storeId: document.getElementById('rqStoreId').value,
+            employeeId: document.getElementById('rqEmployeeId').value
+        };
+
+        this.rqIntegration.saveSettings(settings);
+        alert('✅ RQ settings saved successfully!');
+    }
+
+    async testRQConnection() {
+        if (!this.rqIntegration) {
+            alert('RQ Integration not available');
+            return;
+        }
+
+        if (!this.rqIntegration.isConfigured()) {
+            alert('Please configure all RQ settings first.');
+            return;
+        }
+
+        const btn = document.getElementById('testRQConnection');
+        btn.disabled = true;
+        btn.textContent = '⏳ Testing...';
+
+        try {
+            // Simple test by trying to fetch from the API
+            const response = await fetch(`${this.rqIntegration.apiEndpoint}/health`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.rqIntegration.apiKey}`,
+                    'X-Company-Id': this.rqIntegration.companyId
+                }
+            });
+
+            if (response.ok) {
+                alert('✅ Connection successful!\nRQ API is reachable.');
+            } else {
+                alert(`⚠️ Connection test returned status ${response.status}.\nYour credentials may be incorrect or the API may be unavailable.`);
+            }
+        } catch (error) {
+            alert(`❌ Connection failed:\n${error.message}\n\nPlease check your API endpoint and network connection.`);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '🔌 Test Connection';
         }
     }
 }
