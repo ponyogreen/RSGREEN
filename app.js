@@ -1,5 +1,5 @@
-// Verizon Sales Finder App
-// Real-time conversation analysis for sales opportunities
+// Verizon Sales Finder App - Enhanced Version
+// Real-time conversation analysis for sales opportunities with product recommendations and commission tracking
 
 class SalesFinder {
     constructor() {
@@ -10,13 +10,21 @@ class SalesFinder {
         this.sessionTimer = null;
         this.transcript = [];
         this.opportunities = [];
+        this.recommendations = [];
+        this.currentSale = {
+            items: [],
+            totalCommission: 0
+        };
         this.currentSession = {
             id: null,
             startTime: null,
             endTime: null,
             transcript: [],
             opportunities: [],
-            notes: ''
+            recommendations: [],
+            saleItems: [],
+            notes: '',
+            commission: 0
         };
 
         this.init();
@@ -26,6 +34,8 @@ class SalesFinder {
         this.setupSpeechRecognition();
         this.setupEventListeners();
         this.loadHistory();
+        this.loadProductCatalog();
+        this.updateCommissionDisplay();
     }
 
     setupSpeechRecognition() {
@@ -100,10 +110,20 @@ class SalesFinder {
         document.getElementById('exportBtn').addEventListener('click', () => this.exportSession());
         document.getElementById('newSessionBtn').addEventListener('click', () => this.newSession());
 
+        // Commission
+        document.getElementById('viewBreakdown').addEventListener('click', () => this.showCommissionBreakdown());
+        document.getElementById('closeModal').addEventListener('click', () => this.hideCommissionBreakdown());
+
         // Navigation
         document.getElementById('navHome').addEventListener('click', () => {
             this.showScreen('appScreen');
             this.setActiveNav('navHome');
+        });
+
+        document.getElementById('navCatalog').addEventListener('click', () => {
+            this.showScreen('catalogScreen');
+            this.setActiveNav('navCatalog');
+            this.displayProductCatalog('plans');
         });
 
         document.getElementById('navHistory').addEventListener('click', () => {
@@ -116,6 +136,34 @@ class SalesFinder {
             this.showScreen('appScreen');
             this.setActiveNav('navHome');
         });
+
+        document.getElementById('backFromCatalog').addEventListener('click', () => {
+            this.showScreen('appScreen');
+            this.setActiveNav('navHome');
+        });
+
+        // Catalog tabs
+        document.querySelectorAll('.catalog-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.catalog-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                this.displayProductCatalog(tab.dataset.tab);
+            });
+        });
+
+        // Modal click outside to close
+        document.getElementById('commissionModal').addEventListener('click', (e) => {
+            if (e.target.id === 'commissionModal') {
+                this.hideCommissionBreakdown();
+            }
+        });
+    }
+
+    loadProductCatalog() {
+        // Catalog is loaded from product-catalog.js
+        if (typeof VerizonCatalog === 'undefined') {
+            console.error('Product catalog not loaded');
+        }
     }
 
     showScreen(screenId) {
@@ -187,6 +235,7 @@ class SalesFinder {
         }
 
         this.currentSession.endTime = new Date();
+        this.currentSession.commission = this.currentSale.totalCommission;
         this.updateStatus('stopped', 'Session Ended');
 
         // Update buttons
@@ -246,91 +295,119 @@ class SalesFinder {
     analyzeForOpportunities(text) {
         const textLower = text.toLowerCase();
 
-        // Define opportunity patterns
+        // Enhanced patterns with more context
         const patterns = [
             // Carrier switching opportunities
             {
-                keywords: ['at&t', 'att', 't-mobile', 'tmobile', 'sprint', 'cricket', 'metro'],
+                keywords: ['at&t', 'att', 't-mobile', 'tmobile', 'sprint', 'cricket', 'metro', 'boost', 'straight talk', 'visible'],
                 type: 'Carrier Switch',
                 priority: 'high',
-                suggestion: 'Customer mentions competitor carrier. Discuss Verizon\'s superior coverage and network reliability. Offer to check switch savings.'
+                suggestion: 'Customer mentions competitor carrier. Discuss Verizon\'s superior coverage and network reliability. Offer to check switch savings and port number.',
+                tags: ['carrier-switch']
             },
             // Bill/pricing concerns
             {
-                keywords: ['expensive', 'too much', 'high bill', 'costly', 'cheaper', 'save money', 'afford'],
+                keywords: ['expensive', 'too much', 'high bill', 'costly', 'cheaper', 'save money', 'afford', 'budget', 'paying too much'],
                 type: 'Price Concern',
                 priority: 'high',
-                suggestion: 'Customer mentions price concerns. Present unlimited plans, family discounts, or promotional offers. Calculate potential savings.'
+                suggestion: 'Customer mentions price concerns. Present unlimited plans, family discounts, or promotional offers. Calculate potential savings with multiple lines.',
+                tags: ['price', 'budget']
             },
             // Coverage issues
             {
-                keywords: ['no signal', 'bad coverage', 'drops calls', 'slow data', 'no service', 'dead zone'],
+                keywords: ['no signal', 'bad coverage', 'drops calls', 'slow data', 'no service', 'dead zone', 'poor reception', 'cant make calls'],
                 type: 'Coverage Issue',
                 priority: 'high',
-                suggestion: 'Customer has coverage issues. Highlight Verizon\'s nationwide 5G network. Show coverage map for their area.'
+                suggestion: 'Customer has coverage issues. Highlight Verizon\'s nationwide 5G network. Show coverage map for their area and emphasize network awards.',
+                tags: ['coverage', '5g']
             },
             // Device upgrade opportunities
             {
-                keywords: ['old phone', 'battery dies', 'slow phone', 'broken screen', 'new phone', 'upgrade'],
+                keywords: ['old phone', 'battery dies', 'slow phone', 'broken screen', 'new phone', 'upgrade', 'cracked', 'freezes', 'wont turn on'],
                 type: 'Device Upgrade',
                 priority: 'high',
-                suggestion: 'Customer may need device upgrade. Show latest iPhone/Samsung models. Discuss trade-in value and payment plans.'
+                suggestion: 'Customer may need device upgrade. Show latest iPhone/Samsung models. Discuss trade-in value (up to $800) and 36-month payment plans.',
+                tags: ['device-upgrade', 'premium']
             },
             // 5G opportunities
             {
-                keywords: ['5g', 'faster internet', 'slow internet', 'streaming', 'gaming'],
+                keywords: ['5g', 'faster internet', 'slow internet', 'streaming', 'gaming', 'buffering', 'lag', 'download speed'],
                 type: '5G Upgrade',
                 priority: 'medium',
-                suggestion: 'Customer interested in speed/performance. Highlight 5G capabilities and compatible devices. Discuss 5G plan options.'
+                suggestion: 'Customer interested in speed/performance. Highlight 5G Ultra Wideband capabilities and compatible devices. Discuss 5G plan options with premium data.',
+                tags: ['5g', 'premium', 'streaming', 'gaming']
             },
             // Family plan opportunities
             {
-                keywords: ['family', 'kids', 'spouse', 'husband', 'wife', 'children', 'multiple lines'],
+                keywords: ['family', 'kids', 'spouse', 'husband', 'wife', 'children', 'multiple lines', 'daughter', 'son', 'parent'],
                 type: 'Family Plan',
                 priority: 'medium',
-                suggestion: 'Customer mentions family members. Present family plan options with per-line savings. Discuss parental controls and Apple Watch options.'
+                suggestion: 'Customer mentions family members. Present family plan options starting at $30/line with 4+ lines. Discuss parental controls and Apple Watch options for kids.',
+                tags: ['family', 'multiple-lines']
             },
             // Home internet opportunities
             {
-                keywords: ['home internet', 'wifi', 'broadband', 'cable', 'xfinity', 'spectrum'],
+                keywords: ['home internet', 'wifi', 'broadband', 'cable', 'xfinity', 'spectrum', 'comcast', 'fiber', 'internet at home'],
                 type: 'Home Internet',
                 priority: 'medium',
-                suggestion: 'Customer mentions home internet. Introduce Verizon 5G Home Internet or Fios. Bundle savings opportunity.'
+                suggestion: 'Customer mentions home internet. Introduce Verizon 5G Home Internet ($25/mo with mobile) or Fios fiber. Bundle savings opportunity.',
+                tags: ['home-internet', 'bundle']
             },
             // Business opportunities
             {
-                keywords: ['business', 'company', 'employees', 'work phone', 'corporate'],
+                keywords: ['business', 'company', 'employees', 'work phone', 'corporate', 'office', 'team', 'staff'],
                 type: 'Business Account',
                 priority: 'high',
-                suggestion: 'Potential business customer. Discuss Verizon Business solutions, multiple line discounts, and business-specific features.'
+                suggestion: 'Potential business customer. Discuss Verizon Business solutions, multiple line discounts, and business-specific features like priority data.',
+                tags: ['business']
             },
             // Travel needs
             {
-                keywords: ['travel', 'international', 'abroad', 'vacation', 'overseas'],
+                keywords: ['travel', 'international', 'abroad', 'vacation', 'overseas', 'europe', 'mexico', 'canada', 'trip'],
                 type: 'International Plan',
                 priority: 'medium',
-                suggestion: 'Customer travels internationally. Discuss TravelPass and international calling options.'
+                suggestion: 'Customer travels internationally. Discuss TravelPass ($12/day), Mexico/Canada included plans, and international calling options.',
+                tags: ['international']
             },
             // Streaming services
             {
-                keywords: ['netflix', 'disney', 'hulu', 'streaming', 'movies', 'watch'],
+                keywords: ['netflix', 'disney', 'hulu', 'streaming', 'movies', 'watch', 'shows', 'espn', 'apple music'],
                 type: 'Entertainment Bundle',
                 priority: 'low',
-                suggestion: 'Customer interested in entertainment. Highlight plans that include Disney+, Hulu, or other streaming perks.'
+                suggestion: 'Customer interested in entertainment. Highlight Unlimited Plus/Ultimate plans that include Disney+, Hulu, ESPN+, and Apple Music.',
+                tags: ['streaming', 'entertainment']
             },
             // Accessories
             {
-                keywords: ['case', 'charger', 'headphones', 'airpods', 'screen protector', 'accessories'],
+                keywords: ['case', 'charger', 'headphones', 'airpods', 'screen protector', 'accessories', 'earbuds', 'car mount'],
                 type: 'Accessories',
                 priority: 'low',
-                suggestion: 'Customer mentions accessories. Show relevant accessories and protection plans.'
+                suggestion: 'Customer mentions accessories. Show relevant accessories and protection plans. OtterBox cases, wireless chargers, and AirPods available.',
+                tags: ['accessories']
             },
             // Contract ending
             {
-                keywords: ['contract ending', 'contract up', 'lease ending', 'payoff'],
+                keywords: ['contract ending', 'contract up', 'lease ending', 'payoff', 'upgrade eligible', 'paid off'],
                 type: 'Contract Renewal',
                 priority: 'high',
-                suggestion: 'Customer\'s contract is ending. Perfect time for upgrade or new device. Check upgrade eligibility.'
+                suggestion: 'Customer\'s contract is ending. Perfect time for upgrade or new device. Check upgrade eligibility and show latest devices with trade-in offers.',
+                tags: ['device-upgrade', 'contract']
+            },
+            // Data usage concerns
+            {
+                keywords: ['running out of data', 'data limit', 'overage', 'out of data', 'need more data'],
+                type: 'Data Upgrade',
+                priority: 'high',
+                suggestion: 'Customer needs more data. Present unlimited plans or higher data tiers. Show how unlimited eliminates overage charges.',
+                tags: ['data', 'unlimited']
+            },
+            // Watch/tablet opportunities
+            {
+                keywords: ['apple watch', 'smartwatch', 'watch', 'ipad', 'tablet', 'galaxy watch'],
+                type: 'Connected Devices',
+                priority: 'medium',
+                suggestion: 'Customer interested in connected devices. Discuss Apple Watch, iPad, or Galaxy Watch plans. Show NumberShare and family plan options.',
+                tags: ['connected-devices', 'accessories']
             }
         ];
 
@@ -351,6 +428,7 @@ class SalesFinder {
                         priority: pattern.priority,
                         text: text,
                         suggestion: pattern.suggestion,
+                        tags: pattern.tags,
                         timestamp: Date.now(),
                         timeString: this.formatTime(new Date())
                     };
@@ -358,6 +436,9 @@ class SalesFinder {
                     this.opportunities.push(opportunity);
                     this.currentSession.opportunities.push(opportunity);
                     this.displayOpportunity(opportunity);
+
+                    // Generate recommendations for this opportunity
+                    this.generateRecommendations(opportunity);
                 }
             }
         });
@@ -384,6 +465,229 @@ class SalesFinder {
         `;
 
         opportunitiesList.insertBefore(oppDiv, opportunitiesList.firstChild);
+    }
+
+    generateRecommendations(opportunity) {
+        if (typeof VerizonCatalog === 'undefined') {
+            return;
+        }
+
+        const recs = VerizonCatalog.getRecommendations(opportunity);
+
+        if (recs.plans.length === 0 && recs.devices.length === 0 && recs.accessories.length === 0) {
+            return; // No recommendations
+        }
+
+        // Show recommendations panel
+        const panel = document.getElementById('recommendationsPanel');
+        panel.style.display = 'block';
+
+        const recsList = document.getElementById('recommendationsList');
+
+        // Display plan recommendations
+        recs.plans.forEach(plan => {
+            this.displayRecommendation({
+                type: 'plan',
+                item: plan,
+                reason: recs.reasoning.join(' ')
+            });
+        });
+
+        // Display device recommendations
+        recs.devices.forEach(device => {
+            this.displayRecommendation({
+                type: 'device',
+                item: device,
+                reason: recs.reasoning.join(' ')
+            });
+        });
+
+        // Display accessory recommendations (limited to top 3)
+        recs.accessories.slice(0, 3).forEach(accessory => {
+            this.displayRecommendation({
+                type: 'accessory',
+                item: accessory,
+                reason: recs.reasoning.join(' ')
+            });
+        });
+    }
+
+    displayRecommendation(rec) {
+        const recsList = document.getElementById('recommendationsList');
+
+        const recDiv = document.createElement('div');
+        recDiv.className = 'recommendation-card';
+
+        let priceDisplay = '';
+        let features = '';
+
+        if (rec.type === 'plan') {
+            priceDisplay = `$${rec.item.pricePerLine ? rec.item.pricePerLine[1] : rec.item.price}/mo`;
+            features = rec.item.features.slice(0, 4).map(f => `<li>${f}</li>`).join('');
+        } else if (rec.type === 'device') {
+            priceDisplay = `$${rec.item.monthlyPayment}/mo`;
+            features = rec.item.features.slice(0, 3).map(f => `<li>${f}</li>`).join('');
+        } else if (rec.type === 'accessory') {
+            priceDisplay = `$${rec.item.price}`;
+            features = '';
+        }
+
+        recDiv.innerHTML = `
+            <div class="recommendation-header">
+                <span class="recommendation-name">${rec.item.name}</span>
+                <span class="recommendation-price">${priceDisplay}</span>
+            </div>
+            ${features ? `<ul class="recommendation-features">${features}</ul>` : ''}
+            <div class="recommendation-footer">
+                <span class="recommendation-commission">+$${rec.item.commission} commission</span>
+                <button class="btn-add-to-sale" onclick="app.addToSale('${rec.type}', '${rec.item.id}')">Add to Sale</button>
+            </div>
+        `;
+
+        recsList.appendChild(recDiv);
+    }
+
+    addToSale(type, itemId) {
+        if (typeof VerizonCatalog === 'undefined') {
+            return;
+        }
+
+        let item = null;
+
+        // Find the item
+        if (type === 'plan') {
+            item = [...VerizonCatalog.plans.unlimited, ...VerizonCatalog.plans.prepaid]
+                .find(p => p.id === itemId);
+        } else if (type === 'device') {
+            item = [...VerizonCatalog.devices.iphone, ...VerizonCatalog.devices.samsung, ...VerizonCatalog.devices.other]
+                .find(d => d.id === itemId);
+        } else if (type === 'accessory') {
+            item = VerizonCatalog.accessories.find(a => a.id === itemId);
+        }
+
+        if (item) {
+            // Check if already added
+            const exists = this.currentSale.items.some(i => i.id === itemId);
+            if (!exists) {
+                this.currentSale.items.push({...item, type});
+                this.currentSale.totalCommission += item.commission || 0;
+                this.currentSession.saleItems.push({...item, type});
+                this.updateCommissionDisplay();
+
+                // Visual feedback
+                alert(`Added ${item.name} to sale! +$${item.commission} commission`);
+            } else {
+                alert('Item already added to sale');
+            }
+        }
+    }
+
+    updateCommissionDisplay() {
+        document.getElementById('commissionAmount').textContent =
+            `$${this.currentSale.totalCommission}`;
+    }
+
+    showCommissionBreakdown() {
+        const modal = document.getElementById('commissionModal');
+        const breakdown = document.getElementById('commissionBreakdown');
+
+        if (this.currentSale.items.length === 0) {
+            breakdown.innerHTML = '<p class="empty-state">No items added to sale yet</p>';
+        } else {
+            let html = '';
+            this.currentSale.items.forEach(item => {
+                html += `
+                    <div class="commission-item">
+                        <span class="commission-item-name">${item.name}</span>
+                        <span class="commission-item-amount">$${item.commission || 0}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="commission-total">
+                    <span class="commission-total-label">Total Commission</span>
+                    <span class="commission-total-amount">$${this.currentSale.totalCommission}</span>
+                </div>
+            `;
+
+            breakdown.innerHTML = html;
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    hideCommissionBreakdown() {
+        document.getElementById('commissionModal').style.display = 'none';
+    }
+
+    displayProductCatalog(category) {
+        if (typeof VerizonCatalog === 'undefined') {
+            return;
+        }
+
+        const content = document.getElementById('catalogContent');
+        content.innerHTML = '';
+
+        if (category === 'plans') {
+            VerizonCatalog.plans.unlimited.forEach(plan => {
+                this.displayProductCard(plan, 'plan');
+            });
+        } else if (category === 'devices') {
+            [...VerizonCatalog.devices.iphone, ...VerizonCatalog.devices.samsung, ...VerizonCatalog.devices.other]
+                .forEach(device => {
+                    this.displayProductCard(device, 'device');
+                });
+        } else if (category === 'home') {
+            VerizonCatalog.homeInternet.forEach(home => {
+                this.displayProductCard(home, 'home');
+            });
+        } else if (category === 'accessories') {
+            VerizonCatalog.accessories.forEach(acc => {
+                this.displayProductCard(acc, 'accessory');
+            });
+        }
+    }
+
+    displayProductCard(item, type) {
+        const content = document.getElementById('catalogContent');
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        let priceDisplay = '';
+        if (type === 'plan') {
+            priceDisplay = `
+                <div class="product-price-main">$${item.pricePerLine ? item.pricePerLine[1] : item.price}</div>
+                <div class="product-price-sub">per line/mo</div>
+            `;
+        } else if (type === 'device') {
+            priceDisplay = `
+                <div class="product-price-main">$${item.monthlyPayment}</div>
+                <div class="product-price-sub">/mo or $${item.price}</div>
+            `;
+        } else {
+            priceDisplay = `
+                <div class="product-price-main">$${item.price}</div>
+                <div class="product-price-sub">${item.discountPrice ? `Reg. $${item.price}` : ''}</div>
+            `;
+        }
+
+        const features = item.features ?
+            item.features.slice(0, 5).map(f => `<li>${f}</li>`).join('') : '';
+
+        card.innerHTML = `
+            <div class="product-header">
+                <div>
+                    ${item.bestFor ? '<span class="product-badge">Recommended</span>' : ''}
+                    <div class="product-name">${item.name}</div>
+                </div>
+                <div class="product-price">${priceDisplay}</div>
+            </div>
+            ${features ? `<ul class="product-features">${features}</ul>` : ''}
+            <div class="product-commission">💰 $${item.commission} commission</div>
+        `;
+
+        content.appendChild(card);
     }
 
     updateTranscriptDisplay(finalText, interimText) {
@@ -436,13 +740,15 @@ class SalesFinder {
     saveSession() {
         // Get notes
         this.currentSession.notes = document.getElementById('quickNotes').value;
+        this.currentSession.commission = this.currentSale.totalCommission;
+        this.currentSession.saleItems = this.currentSale.items;
 
         // Save to localStorage
         const sessions = this.getSavedSessions();
         sessions.push(this.currentSession);
         localStorage.setItem('verizonSalesSessions', JSON.stringify(sessions));
 
-        alert('Session saved successfully!');
+        alert(`Session saved! Total Commission: $${this.currentSession.commission}`);
     }
 
     getSavedSessions() {
@@ -467,6 +773,8 @@ class SalesFinder {
             exportText += `Duration: ${duration} minutes\n`;
         }
 
+        exportText += `Total Commission: $${this.currentSale.totalCommission}\n`;
+
         exportText += `\n${'─'.repeat(39)}\n`;
         exportText += `OPPORTUNITIES DETECTED: ${this.opportunities.length}\n`;
         exportText += `${'─'.repeat(39)}\n\n`;
@@ -477,6 +785,16 @@ class SalesFinder {
                 exportText += `   Quote: "${opp.text}"\n`;
                 exportText += `   Suggestion: ${opp.suggestion}\n\n`;
             });
+        }
+
+        if (this.currentSale.items.length > 0) {
+            exportText += `\n${'─'.repeat(39)}\n`;
+            exportText += 'SALE ITEMS\n';
+            exportText += `${'─'.repeat(39)}\n\n`;
+            this.currentSale.items.forEach(item => {
+                exportText += `• ${item.name} - $${item.commission} commission\n`;
+            });
+            exportText += `\nTOTAL COMMISSION: $${this.currentSale.totalCommission}\n`;
         }
 
         exportText += `\n${'─'.repeat(39)}\n`;
@@ -516,20 +834,31 @@ class SalesFinder {
         // Reset session
         this.transcript = [];
         this.opportunities = [];
+        this.recommendations = [];
+        this.currentSale = {
+            items: [],
+            totalCommission: 0
+        };
         this.currentSession = {
             id: null,
             startTime: null,
             endTime: null,
             transcript: [],
             opportunities: [],
-            notes: ''
+            recommendations: [],
+            saleItems: [],
+            notes: '',
+            commission: 0
         };
 
         // Clear displays
         document.getElementById('transcript').innerHTML = '<p class="empty-state">Transcript will appear here...</p>';
         document.getElementById('opportunitiesList').innerHTML = '<p class="empty-state">Start conversation to detect opportunities...</p>';
+        document.getElementById('recommendationsList').innerHTML = '';
+        document.getElementById('recommendationsPanel').style.display = 'none';
         document.getElementById('quickNotes').value = '';
         document.getElementById('sessionTime').textContent = '00:00';
+        this.updateCommissionDisplay();
 
         // Show consent screen
         this.showScreen('consentScreen');
@@ -578,6 +907,10 @@ class SalesFinder {
                         <div class="stat-value">${session.transcript.length}</div>
                         <div class="stat-label">Transcripts</div>
                     </div>
+                    <div class="stat">
+                        <div class="stat-value">$${session.commission || 0}</div>
+                        <div class="stat-label">Commission</div>
+                    </div>
                 </div>
                 <div class="history-item-actions">
                     <button class="btn btn-primary" onclick="app.viewSession(${index})">View</button>
@@ -615,6 +948,12 @@ class SalesFinder {
         session.opportunities.forEach(opp => this.displayOpportunity(opp));
 
         document.getElementById('quickNotes').value = session.notes || '';
+
+        // Update commission if available
+        if (session.commission) {
+            this.currentSale.totalCommission = session.commission;
+            this.updateCommissionDisplay();
+        }
 
         // Switch to app screen
         this.showScreen('appScreen');

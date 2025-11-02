@@ -50,11 +50,27 @@
                 <button id="stopBtn" class="btn btn-danger" style="display:none;">⏹ Stop Session</button>
             </div>
 
+            <!-- Commission Tracker -->
+            <div class="commission-tracker">
+                <div class="commission-display">
+                    <div class="commission-label">Potential Commission</div>
+                    <div class="commission-amount" id="commissionAmount">$0</div>
+                </div>
+                <button id="viewBreakdown" class="btn-link">View Breakdown</button>
+            </div>
+
             <!-- Opportunities Panel -->
             <div class="opportunities-panel" id="opportunitiesPanel">
                 <h3>🎯 Detected Opportunities</h3>
                 <div id="opportunitiesList" class="opportunities-list">
                     <p class="empty-state">Start conversation to detect opportunities...</p>
+                </div>
+            </div>
+
+            <!-- Recommendations Panel -->
+            <div class="recommendations-panel" id="recommendationsPanel" style="display:none;">
+                <h3>💡 Smart Recommendations</h3>
+                <div id="recommendationsList" class="recommendations-list">
                 </div>
             </div>
 
@@ -91,11 +107,49 @@
             </div>
         </div>
 
+        <!-- Product Catalog Screen -->
+        <div id="catalogScreen" class="screen">
+            <div class="catalog-header">
+                <h2>📱 Product Catalog</h2>
+                <button id="backFromCatalog" class="btn btn-secondary">← Back</button>
+            </div>
+
+            <!-- Catalog Tabs -->
+            <div class="catalog-tabs">
+                <button class="catalog-tab active" data-tab="plans">Plans</button>
+                <button class="catalog-tab" data-tab="devices">Devices</button>
+                <button class="catalog-tab" data-tab="home">Home Internet</button>
+                <button class="catalog-tab" data-tab="accessories">Accessories</button>
+            </div>
+
+            <!-- Catalog Content -->
+            <div id="catalogContent" class="catalog-content">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Commission Breakdown Modal -->
+        <div id="commissionModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💰 Commission Breakdown</h3>
+                    <button id="closeModal" class="btn-close">×</button>
+                </div>
+                <div id="commissionBreakdown" class="modal-body">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
         <!-- Navigation -->
         <nav class="bottom-nav">
             <button id="navHome" class="nav-item active">
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">Home</span>
+            </button>
+            <button id="navCatalog" class="nav-item">
+                <span class="nav-icon">📱</span>
+                <span class="nav-label">Catalog</span>
             </button>
             <button id="navHistory" class="nav-item">
                 <span class="nav-icon">📚</span>
@@ -104,6 +158,7 @@
         </nav>
     </div>
 
+    <script src="product-catalog.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
