@@ -1,0 +1,337 @@
+.plans {
+  max-width: 1200px;
+}
+
+.current-plan-banner {
+  background: linear-gradient(135deg, #000000 0%, #cd040b 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.current-plan-info h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.current-plan-info h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+}
+
+.current-plan-info p {
+  margin: 0;
+  font-size: 20px;
+  opacity: 0.95;
+}
+
+.manage-plan-btn {
+  padding: 12px 28px;
+  background: white;
+  color: #cd040b;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manage-plan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.plans-section, .addons-section, .plan-comparison {
+  margin-bottom: 3rem;
+}
+
+.plans-section h2, .addons-section h2, .plan-comparison h2 {
+  font-size: 28px;
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.section-subtitle {
+  color: #6b7280;
+  margin: 0 0 2rem;
+  font-size: 16px;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.plan-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.plan-card.current {
+  border-color: #ca8a04;
+  background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+}
+
+.plan-card.premium {
+  border-color: #cd040b;
+  background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%);
+}
+
+.current-badge, .premium-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.current-badge {
+  background: #fbbf24;
+  color: #78350f;
+}
+
+.premium-badge {
+  background: #cd040b;
+  color: white;
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.plan-header h3 {
+  margin: 1rem 0 8px;
+  font-size: 24px;
+  color: #111827;
+}
+
+.plan-tagline {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.plan-price {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.price-amount {
+  font-size: 48px;
+  font-weight: bold;
+  color: #111827;
+}
+
+.price-period {
+  font-size: 18px;
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.plan-features {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0.75rem 0;
+  color: #374151;
+  font-size: 15px;
+}
+
+.plan-features li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #16a34a;
+}
+
+.plan-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, #cd040b, #a00309);
+  color: white;
+}
+
+.plan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(205, 4, 11, 0.3);
+}
+
+.plan-btn.current-btn {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.plan-btn.current-btn:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.plan-btn.premium-btn {
+  background: linear-gradient(135deg, #000000, #cd040b);
+}
+
+.addons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.addon-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+.addon-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.addon-card h4 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #111827;
+}
+
+.addon-card p {
+  margin: 0 0 1rem;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.addon-price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #cd040b;
+  margin-bottom: 1rem;
+}
+
+.addon-btn {
+  width: 100%;
+  padding: 10px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addon-btn:hover {
+  background: #e5e7eb;
+  border-color: #cd040b;
+  color: #cd040b;
+}
+
+.comparison-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.comparison-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table thead {
+  background: linear-gradient(135deg, #000000 0%, #cd040b 100%);
+  color: white;
+}
+
+.comparison-table th {
+  padding: 1.5rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.comparison-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 15px;
+  color: #374151;
+}
+
+.comparison-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.comparison-table td:first-child {
+  font-weight: 600;
+  color: #111827;
+}
+
+@media (max-width: 768px) {
+  .current-plan-banner {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .manage-plan-btn {
+    width: 100%;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .addons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-table {
+    font-size: 14px;
+  }
+}
